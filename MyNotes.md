@@ -186,3 +186,11 @@ Remote.LoadPath =
 
 RemoteHost = 'DEV' -> 'DEV' -> 'DEV'
 ```
+## Schemas
+- [Unity Addressables 學習
+](https://zhuanlan.zhihu.com/p/499172933)
+- Content Packing & Loading
+- Content update restrictions
+- Resources and built in scenes
+
+<img src="./Preview/Schemas.png" width="600px">
