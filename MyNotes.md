@@ -12,6 +12,7 @@
 
 - Window > Asset Management > Addressables > Groups
 - Window > Asset Management > Addressables > Profiles
+- Window > Asset Management > Addressables > Settings
 - When we `load assets (a list) by a label`, instead of releasing the instance and the asset, we keep all the assets in memory and randomly pick again
 
 ## Several Ways to Load Prefabs
@@ -267,3 +268,12 @@ RemoteHost = 'DEV' -> 'DEV' -> 'DEV'
 - Resources and built in scenes
 
 <img src="./Preview/Schemas.png" width="600px">
+
+## Test Remote
+
+- Window > Asset Management > Addressables > Hosting
+- Modifying the `Remote.LoadPath` before building Addressables
+- Enable `Allow downloads over HTTP`
+
+<img src="./Preview/AllowHttpDownload.png" width="500px">
+<img src="./Preview/Hosting.png" width="500px">
