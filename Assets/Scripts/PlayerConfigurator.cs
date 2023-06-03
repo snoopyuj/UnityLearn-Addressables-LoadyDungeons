@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceLocations;
 
 // Used for the Hat selection logic
 public class PlayerConfigurator : MonoBehaviour
@@ -9,11 +11,14 @@ public class PlayerConfigurator : MonoBehaviour
     private Transform m_HatAnchor;
 
     private GameObject m_HatInstance;
+    private AsyncOperationHandle<IList<IResourceLocation>> m_HatsLocationsOpHandle;
     private AsyncOperationHandle<GameObject> m_HatLoadOpHandle;
+    private List<string> m_Keys = new() { "Hats", "Fancy" };
 
     private void Start()
     {
-        LoadInRandomHat();
+        m_HatsLocationsOpHandle = Addressables.LoadResourceLocationsAsync(m_Keys, Addressables.MergeMode.Intersection);
+        m_HatsLocationsOpHandle.Completed += OnHatLocationsLoadComplete;
     }
 
     private void Update()
@@ -21,19 +26,33 @@ public class PlayerConfigurator : MonoBehaviour
         if (Input.GetMouseButtonUp(1))
         {
             Destroy(m_HatInstance);
-            Addressables.ReleaseInstance(m_HatLoadOpHandle);
-
-            LoadInRandomHat();
+            Addressables.Release(m_HatLoadOpHandle);
+            LoadInRandomHat(m_HatsLocationsOpHandle.Result);
         }
     }
 
-    private void LoadInRandomHat()
+    private void OnDisable()
     {
-        int randomIndex = Random.Range(0, 6);
-        string hatAddress = string.Format("Hat{0:00}", randomIndex);
+        m_HatLoadOpHandle.Completed -= OnHatLoadComplete;
+        m_HatsLocationsOpHandle.Completed -= OnHatLocationsLoadComplete;
+    }
 
-        m_HatLoadOpHandle = Addressables.LoadAssetAsync<GameObject>(hatAddress);
-        m_HatLoadOpHandle.Completed += OnHatLoadComplete;
+    private void OnHatLocationsLoadComplete(AsyncOperationHandle<IList<IResourceLocation>> asyncOperationHandle)
+    {
+        Debug.Log("AsyncOperationHandle Status: " + asyncOperationHandle.Status);
+
+        if (asyncOperationHandle.Status != AsyncOperationStatus.Succeeded)
+        {
+            return;
+        }
+
+        var results = asyncOperationHandle.Result;
+        foreach (var r in results)
+        {
+            Debug.Log("Hat: " + r.PrimaryKey);
+        }
+
+        LoadInRandomHat(results);
     }
 
     private void OnHatLoadComplete(AsyncOperationHandle<GameObject> asyncOperationHandle)
@@ -44,8 +63,12 @@ public class PlayerConfigurator : MonoBehaviour
         }
     }
 
-    private void OnDisable()
+    private void LoadInRandomHat(IList<IResourceLocation> resourceLocations)
     {
-        m_HatLoadOpHandle.Completed -= OnHatLoadComplete;
+        var randomIndex = Random.Range(0, resourceLocations.Count);
+        var randomHatPrefab = resourceLocations[randomIndex];
+
+        m_HatLoadOpHandle = Addressables.LoadAssetAsync<GameObject>(randomHatPrefab);
+        m_HatLoadOpHandle.Completed += OnHatLoadComplete;
     }
 }

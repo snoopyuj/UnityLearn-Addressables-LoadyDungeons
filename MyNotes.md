@@ -12,6 +12,7 @@
 
 - Window > Asset Management > Addressables > Groups
 - Window > Asset Management > Addressables > Profiles
+- When we `load assets (a list) by a label`, instead of releasing the instance and the asset, we keep all the assets in memory and randomly pick again
 
 ## Several Ways to Load Prefabs
 
@@ -149,6 +150,78 @@ public static void LoadNextLevel()
     m_SceneLoadOpHandle = Addressables.LoadSceneAsync("LoadingScene", activateOnLoad: true);
 }
 ```
+
+## Load Assets by Labels 
+
+### Load Locations
+
+```csharp
+private GameObject m_HatInstance;
+
+// Also can load all assets directly: <IList<GameObject>>
+private AsyncOperationHandle<IList<IResourceLocation>> m_HatsLocationsOpHandle;
+
+private AsyncOperationHandle<GameObject> m_HatLoadOpHandle;
+private List<string> m_Keys = new() { "Hats", "Fancy" };
+
+private void Start()
+{
+    m_HatsLocationsOpHandle = Addressables.LoadResourceLocationsAsync(m_Keys, Addressables.MergeMode.Intersection);
+    m_HatsLocationsOpHandle.Completed += OnHatLocationsLoadComplete;
+}
+
+private void Update()
+{
+    if (Input.GetMouseButtonUp(1))
+    {
+        Destroy(m_HatInstance);
+        Addressables.Release(m_HatLoadOpHandle);
+        LoadInRandomHat(m_HatsLocationsOpHandle.Result);
+    }
+}
+
+private void OnDisable()
+{
+    m_HatLoadOpHandle.Completed -= OnHatLoadComplete;
+    m_HatsLocationsOpHandle.Completed -= OnHatLocationsLoadComplete;
+}
+
+private void OnHatLocationsLoadComplete(AsyncOperationHandle<IList<IResourceLocation>> asyncOperationHandle)
+{
+    Debug.Log("AsyncOperationHandle Status: " + asyncOperationHandle.Status);
+
+    if (asyncOperationHandle.Status != AsyncOperationStatus.Succeeded)
+    {
+        return;
+    }
+
+    var results = asyncOperationHandle.Result;
+    foreach (var r in results)
+    {
+        Debug.Log("Hat: " + r.PrimaryKey);
+    }
+
+    LoadInRandomHat(results);
+}
+
+private void OnHatLoadComplete(AsyncOperationHandle<GameObject> asyncOperationHandle)
+{
+    if (asyncOperationHandle.Status == AsyncOperationStatus.Succeeded)
+    {
+        m_HatInstance = Instantiate(asyncOperationHandle.Result, m_HatAnchor);
+    }
+}
+
+private void LoadInRandomHat(IList<IResourceLocation> resourceLocations)
+{
+    var randomIndex = Random.Range(0, resourceLocations.Count);
+    var randomHatPrefab = resourceLocations[randomIndex];
+
+    m_HatLoadOpHandle = Addressables.LoadAssetAsync<GameObject>(randomHatPrefab);
+    m_HatLoadOpHandle.Completed += OnHatLoadComplete;
+}
+```
+
 
 ## Profiles
 

@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 5ace43c174007f748b47d5305bec694b
   m_currentHash:
     serializedVersion: 2
-    Hash: fe9ee89c6f9ddbaaa7ae985637126f4a
+    Hash: e50e573ceda8fd42088f0eebeb9bf79e
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -143,6 +143,9 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - default
+    - Fancy
+    - Seasonal
+    - Hats
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: efe700f477aeb204f8fbae92c9f798e4, type: 2}
