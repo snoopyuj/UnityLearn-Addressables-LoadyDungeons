@@ -1,3 +1,4 @@
+[>> Official Course <<](https://learn.unity.com/course/get-started-with-addressables?uv=2022.1)
 [>> My Notes <<](./MyNotes.md)
 
 ![LD](https://user-images.githubusercontent.com/263776/110165036-dde21300-7db7-11eb-8f49-e7745ed44b35.png)
